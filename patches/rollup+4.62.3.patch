@@ -1,0 +1,38 @@
+diff --git a/node_modules/rollup/dist/native.js b/node_modules/rollup/dist/native.js
+index a7b1d74..b956b32 100644
+--- a/node_modules/rollup/dist/native.js
++++ b/node_modules/rollup/dist/native.js
+@@ -127,9 +127,30 @@ const requireWithFriendlyError = id => {
+ 	}
+ };
+ 
+-const { parse, parseAsync, xxhashBase64Url, xxhashBase36, xxhashBase16 } = requireWithFriendlyError(
+-	existsSync(path.join(__dirname, localName)) ? localName : `@rollup/rollup-${packageBase}`
+-);
++let parse, parseAsync, xxhashBase64Url, xxhashBase36, xxhashBase16;
++try {
++	const native = requireWithFriendlyError(
++		existsSync(path.join(__dirname, localName)) ? localName : `@rollup/rollup-${packageBase}`
++	);
++	({ parse, parseAsync, xxhashBase64Url, xxhashBase36, xxhashBase16 } = native);
++} catch (error) {
++	// On any error loading the native addon, try falling back to the WASM-node implementation.
++	try {
++		// Try to load the native exports from the wasm-node package directly.
++		// The package main export is the Rollup API; the native helpers live at dist/native.js.
++		let wasm;
++		try {
++			wasm = require('@rollup/wasm-node/dist/native.js');
++		} catch (e) {
++			// Older package layouts may expose native helpers at this path
++			wasm = require('@rollup/wasm-node/dist/wasm-node/bindings_wasm.js');
++		}
++		({ parse, parseAsync, xxhashBase64Url, xxhashBase36, xxhashBase16 } = wasm);
++	} catch (fallbackErr) {
++		// If fallback is not installed or fails, rethrow original error to preserve context
++		throw error;
++	}
++}
+ 
+ function getPackageBase() {
+ 	const imported = bindingsByPlatformAndArch[platform]?.[arch];

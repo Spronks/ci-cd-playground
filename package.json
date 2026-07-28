@@ -1,0 +1,23 @@
+{
+  "name": "fem-cicd-sample-app",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "postinstall": "patch-package"
+  },
+  "dependencies": {
+    "astro": "^5.5.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "devDependencies": {
+    "@rollup/wasm-node": "^4.62.3",
+    "patch-package": "^8.0.1"
+  }
+}
