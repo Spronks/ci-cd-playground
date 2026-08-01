@@ -8,6 +8,10 @@ name: Deploy
 
 permissions: {}
 
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
 jobs:
   build:
     permissions:
